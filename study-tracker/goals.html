@@ -1,0 +1,181 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Your Learning Goal</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="goals-page">
+
+<div class="goals-container">
+    <h1>SELECT YOUR GOAL</h1>
+    <p class="goals-subtitle">Choose your exam or course for personalized study plans</p>
+
+    <div class="goals-grid">
+        
+        <!-- ========== ICSE SECTION (HARDER) ========== -->
+        <div style="grid-column: 1 / -1; margin-bottom: 20px;">
+            <h2 style="color: #ef4444; text-align: center; font-size: 20px; margin: 20px 0;">ICSE (MORE CHALLENGING)</h2>
+        </div>
+
+        <div class="goal-card icse-card" onclick="selectGoal('ICSE_7')">
+            <div class="goal-icon">📚</div>
+            <h2>ICSE 7</h2>
+            <p class="goal-description">7th standard foundation</p>
+            <div class="goal-meta">
+                <span class="hours">5 hrs/day</span>
+                <span class="difficulty">Foundation</span>
+            </div>
+            <p class="goal-time">1.5-2h per subject</p>
+        </div>
+
+        <div class="goal-card icse-card" onclick="selectGoal('ICSE_8')">
+            <div class="goal-icon">📖</div>
+            <h2>ICSE 8</h2>
+            <p class="goal-description">8th standard curriculum</p>
+            <div class="goal-meta">
+                <span class="hours">6 hrs/day</span>
+                <span class="difficulty">Building</span>
+            </div>
+            <p class="goal-time">2-2.5h per subject</p>
+        </div>
+
+        <div class="goal-card icse-card" onclick="selectGoal('ICSE_9')">
+            <div class="goal-icon">🎯</div>
+            <h2>ICSE 9</h2>
+            <p class="goal-description">Pre-board preparation</p>
+            <div class="goal-meta">
+                <span class="hours">7 hrs/day</span>
+                <span class="difficulty">Intense</span>
+            </div>
+            <p class="goal-time">2.5-3h per subject</p>
+        </div>
+
+        <div class="goal-card icse-card alert" onclick="selectGoal('ICSE_10')">
+            <div class="alert-badge">BOARD</div>
+            <div class="goal-icon">🔥</div>
+            <h2>ICSE 10</h2>
+            <p class="goal-description">Board exam - HARDEST</p>
+            <div class="goal-meta">
+                <span class="hours">8 hrs/day</span>
+                <span class="difficulty">Critical</span>
+            </div>
+            <p class="goal-time">3-3.5h per subject</p>
+        </div>
+
+        <!-- ========== CBSE SECTION (EASIER) ========== -->
+        <div style="grid-column: 1 / -1; margin-bottom: 20px; margin-top: 40px;">
+            <h2 style="color: #10b981; text-align: center; font-size: 20px; margin: 20px 0;">CBSE (BALANCED)</h2>
+        </div>
+
+        <div class="goal-card cbse-card" onclick="selectGoal('CBSE_7')">
+            <div class="goal-icon">📚</div>
+            <h2>CBSE 7</h2>
+            <p class="goal-description">7th standard foundation</p>
+            <div class="goal-meta">
+                <span class="hours">4 hrs/day</span>
+                <span class="difficulty">Foundation</span>
+            </div>
+            <p class="goal-time">1-1.5h per subject</p>
+        </div>
+
+        <div class="goal-card cbse-card" onclick="selectGoal('CBSE_8')">
+            <div class="goal-icon">📖</div>
+            <h2>CBSE 8</h2>
+            <p class="goal-description">8th standard curriculum</p>
+            <div class="goal-meta">
+                <span class="hours">5 hrs/day</span>
+                <span class="difficulty">Building</span>
+            </div>
+            <p class="goal-time">1.5-2h per subject</p>
+        </div>
+
+        <div class="goal-card cbse-card" onclick="selectGoal('CBSE_9')">
+            <div class="goal-icon">🎓</div>
+            <h2>CBSE 9</h2>
+            <p class="goal-description">Pre-board preparation</p>
+            <div class="goal-meta">
+                <span class="hours">6 hrs/day</span>
+                <span class="difficulty">Moderate</span>
+            </div>
+            <p class="goal-time">2-2.5h per subject</p>
+        </div>
+
+        <div class="goal-card cbse-card success" onclick="selectGoal('CBSE_10')">
+            <div class="success-badge">BOARD</div>
+            <div class="goal-icon">✅</div>
+            <h2>CBSE 10</h2>
+            <p class="goal-description">Board exam - BALANCED</p>
+            <div class="goal-meta">
+                <span class="hours">7 hrs/day</span>
+                <span class="difficulty">Important</span>
+            </div>
+            <p class="goal-time">2.5-3h per subject</p>
+        </div>
+
+        <!-- ========== SENIOR SECTION ========== -->
+        <div style="grid-column: 1 / -1; margin-bottom: 20px; margin-top: 40px;">
+            <h2 style="color: #3b82f6; text-align: center; font-size: 20px; margin: 20px 0;">ADVANCED STUDIES</h2>
+        </div>
+
+        <div class="goal-card senior-card" onclick="selectGoal('CBSE_11')">
+            <div class="goal-icon">📚</div>
+            <h2>CBSE 11</h2>
+            <p class="goal-description">Foundation for board + competitive</p>
+            <div class="goal-meta">
+                <span class="hours">10 hrs/day</span>
+                <span class="difficulty">High</span>
+            </div>
+            <p class="goal-time">3-4h per subject</p>
+        </div>
+
+        <div class="goal-card senior-card" onclick="selectGoal('CBSE_12')">
+            <div class="goal-icon">🎯</div>
+            <h2>CBSE 12</h2>
+            <p class="goal-description">Final board + board exams</p>
+            <div class="goal-meta">
+                <span class="hours">12 hrs/day</span>
+                <span class="difficulty">Very High</span>
+            </div>
+            <p class="goal-time">3.5-4h per subject</p>
+        </div>
+
+        <!-- ========== COMPETITIVE SECTION ========== -->
+        <div style="grid-column: 1 / -1; margin-bottom: 20px; margin-top: 40px;">
+            <h2 style="color: #f59e0b; text-align: center; font-size: 20px; margin: 20px 0;">COMPETITIVE EXAMS</h2>
+        </div>
+
+        <div class="goal-card competitive-card" onclick="selectGoal('JEE_MAINS')">
+            <div class="goal-icon">🚀</div>
+            <h2>JEE Mains</h2>
+            <p class="goal-description">Engineering entrance exam</p>
+            <div class="goal-meta">
+                <span class="hours">14 hrs/day</span>
+                <span class="difficulty">Intense</span>
+            </div>
+            <p class="goal-time">4-5h per subject</p>
+        </div>
+
+        <div class="goal-card competitive-card premium" onclick="selectGoal('JEE_ADVANCED')">
+            <div class="premium-badge">ELITE</div>
+            <div class="goal-icon">⚡</div>
+            <h2>JEE Advanced</h2>
+            <p class="goal-description">Top IIT qualifying exam</p>
+            <div class="goal-meta">
+                <span class="hours">15 hrs/day</span>
+                <span class="difficulty">Extreme</span>
+            </div>
+            <p class="goal-time">5-6h per subject</p>
+        </div>
+
+    </div>
+
+    <p class="goals-footer">Change your goal anytime in dashboard settings</p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="script.js"></script>
+
+</body>
+</html>
