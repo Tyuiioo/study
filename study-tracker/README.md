@@ -19,13 +19,7 @@
   \const SUPABASE_URL = 'your-url';\
   \const SUPABASE_ANON_KEY = 'your-key';\
 
-### 2. Database Setup (Supabase)
-Create these tables:
 
-**user_goals table:**
-- user_id (UUID, Primary Key)
-- goal (TEXT)
-- updated_at (TIMESTAMP)
 
 ### 3. Run Locally
 - Open login.html in browser
