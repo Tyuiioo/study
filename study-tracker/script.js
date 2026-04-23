@@ -239,7 +239,7 @@ async function calculate() {
     // Get AI tips from backend
     let aiTips = [];
     try {
-        const response = await fetch('http://localhost:3000/ai', {
+        const response = await fetch('https://study-yxi5.onrender.com/ai', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -564,7 +564,7 @@ async function sendChat() {
         const goal = getCurrentGoal();
         const logs = JSON.parse(localStorage.getItem("logs")) || [];
 
-        const response = await fetch('http://localhost:3000/chat', {
+        const response = await fetch('https://study-yxi5.onrender.com/chat', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
