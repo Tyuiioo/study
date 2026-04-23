@@ -1,9 +1,12 @@
-﻿const { createClient } = supabase;
+﻿let supabaseClient = null;
 
-const supabaseClient = createClient(
-    "https://gvauqjavaszfdzuhkwuq.supabase.co",
-    "YOUR_KEY"
-);
+if (typeof supabase !== 'undefined') {
+    const { createClient } = supabase;
+    supabaseClient = createClient(
+        "https://gvauqjavaszfdzuhkwuq.supabase.co",
+        "sb_publishable_6yhOFp0a_MfJxxTk3YGmhw_ffZtFbuw"
+    );
+}
 async function login() {
     let email = document.getElementById("email").value;
     let password = document.getElementById("password").value;
@@ -14,13 +17,13 @@ async function login() {
     });
 
     if (error) alert(error.message);
-    else window.location.href = "index.html";
+    else window.location.href = "dashboard.html";
 }
 async function checkAuth() {
     const { data } = await supabase.auth.getUser();
 
     if (!data.user) {
-        window.location.href = "login.html";
+        window.location.href = "index.html";
     }
 }
 async function saveData(study, insta, other, score, subject) {
@@ -214,7 +217,7 @@ function saveData(study, insta, other, score, subject) {
 }
 
 // ==================== SCORING SYSTEM ====================
-function calculate() {
+async function calculate() {
     let study = parseFloat(document.getElementById("study").value) || 0;
     let insta = parseFloat(document.getElementById("insta").value) || 0;
     let other = parseFloat(document.getElementById("other").value) || 0;
@@ -233,9 +236,45 @@ function calculate() {
         study, insta, other, subject, score: finalScore, goal: goal
     });
 
-    let aiTips = getAISuggestions({
-        study, insta, other, subject, score: finalScore, goal: goal
-    });
+    // Get AI tips from backend
+    let aiTips = [];
+    try {
+        const response = await fetch('http://localhost:3000/ai', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                study,
+                insta,
+                other,
+                score: finalScore,
+                subject,
+                goal: goal ? goal.name : 'General',
+                logs: JSON.parse(localStorage.getItem("logs")) || []
+            })
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            // Handle new backend response format
+            if (data.tips && Array.isArray(data.tips)) {
+                aiTips = data.tips.slice(0, 5);
+            } else if (data.choices && data.choices[0]) {
+                // Fallback for old format
+                const aiResponse = data.choices[0].message.content;
+                aiTips = aiResponse.split('\n').filter(tip => tip.trim().length > 0).slice(0, 5);
+            } else {
+                throw new Error('Invalid response format');
+            }
+        } else {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+    } catch (error) {
+        console.error('AI API error:', error);
+        // Show error message - no fallback to local suggestions
+        aiTips = [`⚠️ AI Service Error: ${error.message}`, "Please try again in a few moments or check if the server is running."];
+    }
 
     let output = '<div class="result-box">';
     output += '<p class="score-display">SCORE: ' + finalScore.toFixed(1) + '%</p>';
@@ -401,12 +440,12 @@ async function signup() {
 function logout() {
     localStorage.removeItem("user");
     localStorage.removeItem("logs");
-    window.location.href = "login.html";
+    window.location.href = "index.html";
 }
 
 function selectGoal(goalId) {
     setGoal(goalId);
-    window.location.href = "index.html";
+    window.location.href = "dashboard.html";
 }
 
 // ==================== SUGGESTIONS ====================
@@ -511,10 +550,68 @@ function getAISuggestions(data) {
     return aiTips.slice(0, 5);
 }
 
+// ==================== CHAT FUNCTION ====================
+async function sendChat() {
+    const input = document.getElementById('chat-input');
+    const message = input.value.trim();
+    if (!message) return;
+
+    // Add user message to chat
+    addChatMessage('You', message);
+    input.value = '';
+
+    try {
+        const goal = getCurrentGoal();
+        const logs = JSON.parse(localStorage.getItem("logs")) || [];
+
+        const response = await fetch('http://localhost:3000/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                message,
+                goal: goal ? goal.name : 'General',
+                logs
+            })
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            addChatMessage('AI Coach', data.response);
+        } else {
+            addChatMessage('AI Coach', `Error: API returned ${response.status}. Please try again.`);
+        }
+    } catch (error) {
+        console.error('Chat error:', error);
+        addChatMessage('AI Coach', `Connection error: ${error.message}`);
+    }
+}
+
+function addChatMessage(sender, message) {
+    const chatDiv = document.getElementById('chat-messages');
+    const messageDiv = document.createElement('div');
+    messageDiv.style.marginBottom = '10px';
+    messageDiv.style.padding = '8px';
+    messageDiv.style.borderRadius = '5px';
+    
+    if (sender === 'You') {
+        messageDiv.style.background = 'rgba(16, 185, 129, 0.2)';
+        messageDiv.style.textAlign = 'right';
+    } else {
+        messageDiv.style.background = 'rgba(59, 130, 246, 0.2)';
+        messageDiv.style.textAlign = 'left';
+    }
+    
+    messageDiv.innerHTML = `<strong>${sender}:</strong> ${message}`;
+    chatDiv.appendChild(messageDiv);
+    chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
 // Auto-load on page load
 window.addEventListener('DOMContentLoaded', function() {
     let path = window.location.pathname;
-    if (path.includes('index.html') || path === '/') {
+    if (path.includes('dashboard.html')) {
         loadDashboard();
         setTimeout(loadChart, 100);
     } else if (path.includes('history.html')) {
@@ -522,9 +619,10 @@ window.addEventListener('DOMContentLoaded', function() {
         setTimeout(loadChart, 100);
     }
     
-    let user = getCurrentUser();
-    if (!user && !path.includes('login.html') && !path.includes('goals.html')) {
-        window.location.href = 'login.html';
-    }
+    // Temporarily disable auth check
+    // let user = getCurrentUser();
+    // if (!user && !path.includes('index.html') && !path.includes('goals.html')) {
+    //     window.location.href = 'index.html';
+    // }
 });
 

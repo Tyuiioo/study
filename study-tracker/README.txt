@@ -3,7 +3,7 @@
 ## QUICK START
 
 ### Setup (1 min)
-1. Open login.html in browser
+1. Open index.html in browser
 2. Sign up with email/password
 3. Select your goal (6 options)
 4. Start logging your study!
@@ -48,9 +48,9 @@ Distraction time reduces score 3 points per excess hour.
 
 ## FILES
 
-- login.html: Sign up/login
+- index.html: Sign up/login
 - goals.html: Choose your goal
-- index.html: Dashboard
+- dashboard.html: Dashboard
 - entry.html: Log study data
 - history.html: View progress
 - script.js: All logic + Supabase

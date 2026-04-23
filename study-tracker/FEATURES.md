@@ -65,9 +65,9 @@ Six different exam goals with customized targets:
 - **Ready for Supabase**: Database integration for cloud sync
 
 ## Files Structure
-- login.html - Authentication page
+- index.html - Authentication page
 - goals.html - Goal selection (appears after signup/login)
-- index.html - Dashboard with analytics
+- dashboard.html - Dashboard with analytics
 - entry.html - Daily study data entry
 - history.html - Historical data & charts
 - script.js - All logic and AI recommendations

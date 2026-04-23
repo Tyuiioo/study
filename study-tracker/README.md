@@ -19,10 +19,16 @@
   \const SUPABASE_URL = 'your-url';\
   \const SUPABASE_ANON_KEY = 'your-key';\
 
+### 2. Database Setup (Supabase)
+Create these tables:
 
+**user_goals table:**
+- user_id (UUID, Primary Key)
+- goal (TEXT)
+- updated_at (TIMESTAMP)
 
 ### 3. Run Locally
-- Open login.html in browser
+- Open index.html in browser
 - Create account or login
 - Select your exam goal
 - Start tracking!
@@ -41,9 +47,9 @@
 - Maximum Score: 100%
 
 ## File Structure
-- login.html: Authentication page
+- index.html: Authentication page
 - goal-select.html: Goal selection after login
-- index.html: Main dashboard
+- dashboard.html: Main dashboard
 - entry.html: Log study sessions
 - history.html: View historical data & charts
 - script.js: All logic & functions
