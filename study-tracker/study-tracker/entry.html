@@ -1,0 +1,45 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Study Data</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<div class="card">
+    <h1>ADD STUDY DATA</h1>
+
+    <input type="number" id="study" placeholder="Study Time (hours)" min="0" step="0.5" required>
+    <input type="number" id="insta" placeholder="Instagram Time (hours)" min="0" step="0.5" required>
+    <input type="number" id="other" placeholder="Other Apps (hours)" min="0" step="0.5" required>
+    
+    <label>Subject Focus:</label>
+    <select id="subject" required>
+        <option value="">-- Select Subject --</option>
+        <option>Math</option>
+        <option>Physics</option>
+        <option>Chemistry</option>
+        <option>Biology</option>
+        <option>English</option>
+        <option>History</option>
+        <option>Geography</option>
+    </select>
+
+    <button onclick="calculate()">ANALYZE & GET TIPS</button>
+
+    <div id="result"></div>
+
+    <div class="nav">
+        <a href="dashboard.html">DASHBOARD</a>
+        <a href="chat.html">💬 AI CHAT</a>
+        <a href="history.html">HISTORY</a>
+    </div>
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,37 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study History</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<div class="card">
+    <h1>STUDY HISTORY</h1>
+
+    <div id="history"></div>
+    
+    <!-- Chart -->
+    <canvas id="myChart" style="max-height: 300px;"></canvas>
+
+    <div class="nav">
+        <a href="dashboard.html">DASHBOARD</a>
+        <a href="entry.html">ADD DATA</a>
+        <a href="chat.html">💬 AI CHAT</a>
+    </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+    window.addEventListener('DOMContentLoaded', function() {
+        loadHistory();
+        setTimeout(loadChart, 100);
+    });
+</script>
+
+</body>
+</html>

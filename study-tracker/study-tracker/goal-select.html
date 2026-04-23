@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Your Goal</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body style="background: linear-gradient(135deg, #0f172a 0%, #1a1f3a 100%); padding: 20px;">
+
+<div class="card" style="max-width: 700px;">
+    <h1>SELECT YOUR GOAL</h1>
+    <p style="text-align: center; color: rgba(255,255,255,0.7); margin-bottom: 30px;">Choose your exam target to personalize tracking</p>
+    
+    <div class="goals-grid">
+        <div class="goal-card" onclick="selectGoal('ICSE-10')">
+            <div class="goal-icon">10</div>
+            <h2>ICSE Class 10</h2>
+            <p>4h Daily Target</p>
+        </div>
+        
+        <div class="goal-card" onclick="selectGoal('CBSE-10')">
+            <div class="goal-icon">10</div>
+            <h2>CBSE Class 10</h2>
+            <p>4h Daily Target</p>
+        </div>
+        
+        <div class="goal-card" onclick="selectGoal('CBSE-11')">
+            <div class="goal-icon">11</div>
+            <h2>CBSE Class 11</h2>
+            <p>5h Daily Target</p>
+        </div>
+        
+        <div class="goal-card" onclick="selectGoal('CBSE-12')">
+            <div class="goal-icon">12</div>
+            <h2>CBSE Class 12</h2>
+            <p>5h Daily Target</p>
+        </div>
+        
+        <div class="goal-card" onclick="selectGoal('JEE-MAINS')">
+            <div class="goal-icon">JM</div>
+            <h2>JEE Mains</h2>
+            <p>7h Daily Target</p>
+        </div>
+        
+        <div class="goal-card" onclick="selectGoal('JEE-ADV')">
+            <div class="goal-icon">JA</div>
+            <h2>JEE Advanced</h2>
+            <p>8h Daily Target</p>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    const SUPABASE_URL = 'https://your-project.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_6yhOFp0a_MfJxxTk3YGmhw_ffZtFbuw';
+    
+    async function selectGoal(goal) {
+        localStorage.setItem('currentGoal', goal);
+        
+        try {
+            if (typeof supabase !== 'undefined') {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (user) {
+                    await supabase.from('user_goals').upsert({ 
+                        user_id: user.id, 
+                        goal: goal, 
+                        updated_at: new Date() 
+                    });
+                }
+            }
+        } catch (e) {
+            console.log('Goal saved to localStorage');
+        }
+        
+        window.location.href = 'dashboard.html';
+    }
+</script>
+
+</body>
+</html>
