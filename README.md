@@ -90,7 +90,7 @@ Six different exam goals with customized targets:
 3. Subject-specific tips (Math, Physics, etc.)
 4. Distraction management (phone usage reduction)
 5. Performance motivation (based on score level)
-
+6. It uses llama-3.1-8b-instant model which is very advanced 
 ---
 **Created**: April 2026
 **Version**: 1.0 Premium Edition
