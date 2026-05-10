@@ -1,4 +1,4 @@
-﻿let supabaseClient = null;
+let supabaseClient = null;
 
 if (typeof supabase !== 'undefined') {
     const { createClient } = supabase;
@@ -195,19 +195,19 @@ async function calculate() {
     // Get AI tips from backend
     let aiTips = [];
     try {
-        const response = await fetch('https://study-yxi5.onrender.com/ai', {
-            method: 'POST',
+        const response = await fetch("https://study-yxi5.onrender.com/ai", {
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json',
+                "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                study,
-                insta,
-                other,
-                score: finalScore,
-                subject,
+                study: study,
+                insta: insta,
+                other: other,
+                score: score,
+                subject: subject,
                 goal: goal ? goal.name : 'General',
-                logs: logsData
+                logs: logsData || []
             })
         });
         
@@ -215,9 +215,6 @@ async function calculate() {
             const data = await response.json();
             if (data.tips && Array.isArray(data.tips)) {
                 aiTips = data.tips.slice(0, 5);
-            } else if (data.choices && data.choices[0]) {
-                const aiResponse = data.choices[0].message.content;
-                aiTips = aiResponse.split('\n').filter(tip => tip.trim().length > 0).slice(0, 5);
             } else {
                 throw new Error('Invalid response format');
             }
@@ -226,7 +223,7 @@ async function calculate() {
         }
     } catch (error) {
         console.error('AI API error:', error);
-        aiTips = [`⚠️ AI Service Error: ${error.message}`, "Please try again in a few moments or check if the server is running."];
+        aiTips = [`⚠️ AI Service Error: ${error.message}`, "Please try again in a few moments or check if the backend is running."];
     }
 
     let output = '<div class="result-box">';
@@ -552,74 +549,7 @@ function getAISuggestions(data) {
     return aiTips.slice(0, 5);
 }
 
-// ==================== CHAT FUNCTION ====================
-async function sendChat() {
-    const input = document.getElementById('chat-input');
-    const message = input.value.trim();
-    if (!message) return;
 
-    // Add user message to chat
-    addChatMessage('You', message);
-    input.value = '';
-
-    try {
-        const goal = await getCurrentGoal();
-        
-        let logsData = [];
-        const user = await getCurrentUser();
-        if (user) {
-            const { data } = await supabaseClient
-                .from("log")
-                .select("*")
-                .eq("user_id", user.id)
-                .order("created_at", { ascending: false })
-                .limit(5);
-            logsData = data || [];
-        }
-
-        const response = await fetch('https://study-yxi5.onrender.com/chat', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                message,
-                goal: goal ? goal.name : 'General',
-                logs: logsData
-            })
-        });
-
-        if (response.ok) {
-            const data = await response.json();
-            addChatMessage('AI Coach', data.response);
-        } else {
-            addChatMessage('AI Coach', `Error: API returned ${response.status}. Please try again.`);
-        }
-    } catch (error) {
-        console.error('Chat error:', error);
-        addChatMessage('AI Coach', `Connection error: ${error.message}`);
-    }
-}
-
-function addChatMessage(sender, message) {
-    const chatDiv = document.getElementById('chat-messages');
-    const messageDiv = document.createElement('div');
-    messageDiv.style.marginBottom = '10px';
-    messageDiv.style.padding = '8px';
-    messageDiv.style.borderRadius = '5px';
-    
-    if (sender === 'You') {
-        messageDiv.style.background = 'rgba(16, 185, 129, 0.2)';
-        messageDiv.style.textAlign = 'right';
-    } else {
-        messageDiv.style.background = 'rgba(59, 130, 246, 0.2)';
-        messageDiv.style.textAlign = 'left';
-    }
-    
-    messageDiv.innerHTML = `<strong>${sender}:</strong> ${message}`;
-    chatDiv.appendChild(messageDiv);
-    chatDiv.scrollTop = chatDiv.scrollHeight;
-}
 
 // Auto-load on page load
 window.addEventListener('DOMContentLoaded', function() {

@@ -2,12 +2,20 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const fetch = require("node-fetch");
+const path = require("path");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Serve static files from parent directory
+app.use(express.static(path.join(__dirname, '..')));
+
 const API_KEY = process.env.GROQ_API_KEY;
+
+if (!API_KEY) {
+    console.error("ERROR: GROQ_API_KEY environment variable is not set!");
+}
 
 app.post("/ai", async (req, res) => {
     try {
@@ -123,6 +131,11 @@ Respond as a knowledgeable study coach. Keep responses conversational but inform
         console.error("Chat API Error:", error);
         res.status(500).json({ error: error.message });
     }
+});
+
+// Fallback to serve index.html for SPA routing
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'index.html'));
 });
 
 app.listen(process.env.PORT, () => {

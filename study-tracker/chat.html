@@ -433,18 +433,29 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
 
             try {
-                const goal = getCurrentGoal();
-                const logs = JSON.parse(localStorage.getItem("logs")) || [];
+                let goal = await getCurrentGoal();
+                
+                let logsData = [];
+                const user = await getCurrentUser();
+                if (user) {
+                    const { data } = await supabaseClient
+                        .from("log")
+                        .select("*")
+                        .eq("user_id", user.id)
+                        .order("created_at", { ascending: false })
+                        .limit(5);
+                    logsData = data || [];
+                }
 
-                const response = await fetch('https://study-yxi5.onrender.com/chat', {
-                    method: 'POST',
+                const response = await fetch("https://study-yxi5.onrender.com/chat", {
+                    method: "POST",
                     headers: {
-                        'Content-Type': 'application/json',
+                        "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        message,
-                        goal: goal ? goal.name : 'General',
-                        logs
+                        message: message,
+                        goal: goal ? goal.name : 'General academic improvement',
+                        logs: logsData
                     })
                 });
 
@@ -452,7 +463,11 @@
 
                 if (response.ok) {
                     const data = await response.json();
-                    addChatMessage('AI Coach', data.response);
+                    if (data.response) {
+                        addChatMessage('AI Coach', data.response);
+                    } else {
+                        throw new Error('Invalid response format');
+                    }
                 } else {
                     addChatMessage('AI Coach', `⚠️ Error: API returned ${response.status}. Please try again.`);
                 }
