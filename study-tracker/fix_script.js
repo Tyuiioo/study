@@ -1,121 +1,11 @@
-﻿let supabaseClient = null;
+const fs = require('fs');
+let code = fs.readFileSync('d:/study-tracker/script.js', 'utf8');
 
-if (typeof supabase !== 'undefined') {
-    const { createClient } = supabase;
-    supabaseClient = createClient(
-        "https://gvauqjavaszfdzuhkwuq.supabase.co",
-        "sb_publishable_6yhOFp0a_MfJxxTk3YGmhw_ffZtFbuw"
-    );
-}
+// 1. Remove the first duplicate chunk (lines 10 to 69)
+code = code.replace(/async function login\(\) {[\s\S]*?document\.getElementById\("history"\)\.innerHTML = html;\n}/, '');
 
-// ==================== GOAL SYSTEM ====================
-const GOALS = {
-    // ========== ICSE (HARDER) ==========
-    "ICSE_7": {
-        name: "ICSE Class 7",
-        targetHours: 10,
-        dailyTarget: 5,
-        scoreMultiplier: 0.95,
-        description: "7th standard ICSE foundation",
-        recommendedTime: "1.5-2 hours per subject"
-    },
-    "ICSE_8": {
-        name: "ICSE Class 8",
-        targetHours: 12,
-        dailyTarget: 6,
-        scoreMultiplier: 1.0,
-        description: "8th standard ICSE curriculum",
-        recommendedTime: "2-2.5 hours per subject"
-    },
-    "ICSE_9": {
-        name: "ICSE Class 9",
-        targetHours: 14,
-        dailyTarget: 7,
-        scoreMultiplier: 1.05,
-        description: "9th standard pre-board ICSE",
-        recommendedTime: "2.5-3 hours per subject"
-    },
-    "ICSE_10": {
-        name: "ICSE Class 10",
-        targetHours: 16,
-        dailyTarget: 8,
-        scoreMultiplier: 1.10,
-        description: "10th standard board ICSE (HARDER)",
-        recommendedTime: "3-3.5 hours per subject"
-    },
-
-    // ========== CBSE (EASIER) ==========
-    "CBSE_7": {
-        name: "CBSE Class 7",
-        targetHours: 8,
-        dailyTarget: 4,
-        scoreMultiplier: 0.85,
-        description: "7th standard CBSE foundation",
-        recommendedTime: "1-1.5 hours per subject"
-    },
-    "CBSE_8": {
-        name: "CBSE Class 8",
-        targetHours: 10,
-        dailyTarget: 5,
-        scoreMultiplier: 0.90,
-        description: "8th standard CBSE curriculum",
-        recommendedTime: "1.5-2 hours per subject"
-    },
-    "CBSE_9": {
-        name: "CBSE Class 9",
-        targetHours: 12,
-        dailyTarget: 6,
-        scoreMultiplier: 0.95,
-        description: "9th standard pre-board CBSE",
-        recommendedTime: "2-2.5 hours per subject"
-    },
-    "CBSE_10": {
-        name: "CBSE Class 10",
-        targetHours: 14,
-        dailyTarget: 7,
-        scoreMultiplier: 1.0,
-        description: "10th standard board CBSE (EASIER)",
-        recommendedTime: "2.5-3 hours per subject"
-    },
-
-    // ========== CBSE SENIOR (CLASS 11-12) ==========
-    "CBSE_11": {
-        name: "CBSE Class 11",
-        targetHours: 16,
-        dailyTarget: 10,
-        scoreMultiplier: 1.15,
-        description: "11th standard foundation building",
-        recommendedTime: "3-4 hours per subject"
-    },
-    "CBSE_12": {
-        name: "CBSE Class 12",
-        targetHours: 18,
-        dailyTarget: 12,
-        scoreMultiplier: 1.25,
-        description: "12th standard final exams",
-        recommendedTime: "3.5-4 hours per subject"
-    },
-
-    // ========== COMPETITIVE EXAMS ==========
-    "JEE_MAINS": {
-        name: "JEE Mains",
-        targetHours: 20,
-        dailyTarget: 14,
-        scoreMultiplier: 1.40,
-        description: "Engineering entrance exam",
-        recommendedTime: "4-5 hours per subject"
-    },
-    "JEE_ADVANCED": {
-        name: "JEE Advanced",
-        targetHours: 22,
-        dailyTarget: 15,
-        scoreMultiplier: 1.60,
-        description: "Elite IIT preparation",
-        recommendedTime: "5-6 hours per subject"
-    }
-};
-
-// ==================== USER STATE ====================
+// 2. Replace USER STATE and DATA SAVING
+code = code.replace(/\/\/ ==================== USER STATE ====================[\s\S]*?localStorage\.setItem\("logs", JSON\.stringify\(data\)\);\n}/, `// ==================== USER STATE ====================
 async function getCurrentUser() {
     const { data } = await supabaseClient.auth.getUser();
     return data.user;
@@ -158,10 +48,10 @@ async function saveData(study, insta, other, score, subject) {
     } else {
         alert("Saved!");
     }
-}
+}`);
 
-// ==================== SCORING SYSTEM ====================
-async function calculate() {
+// 3. Replace calculate()
+code = code.replace(/async function calculate\(\) {[\s\S]*?document\.getElementById\("result"\)\.innerHTML = output;\n}/, `async function calculate() {
     let study = parseFloat(document.getElementById("study").value) || 0;
     let insta = parseFloat(document.getElementById("insta").value) || 0;
     let other = parseFloat(document.getElementById("other").value) || 0;
@@ -217,16 +107,16 @@ async function calculate() {
                 aiTips = data.tips.slice(0, 5);
             } else if (data.choices && data.choices[0]) {
                 const aiResponse = data.choices[0].message.content;
-                aiTips = aiResponse.split('\n').filter(tip => tip.trim().length > 0).slice(0, 5);
+                aiTips = aiResponse.split('\\n').filter(tip => tip.trim().length > 0).slice(0, 5);
             } else {
                 throw new Error('Invalid response format');
             }
         } else {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            throw new Error(\`HTTP \${response.status}: \${response.statusText}\`);
         }
     } catch (error) {
         console.error('AI API error:', error);
-        aiTips = [`⚠️ AI Service Error: ${error.message}`, "Please try again in a few moments or check if the server is running."];
+        aiTips = [\`⚠️ AI Service Error: \${error.message}\`, "Please try again in a few moments or check if the server is running."];
     }
 
     let output = '<div class="result-box">';
@@ -243,9 +133,10 @@ async function calculate() {
     output += '</div></div>';
 
     document.getElementById("result").innerHTML = output;
-}
+}`);
 
-// ==================== LOADING DATA ====================
+// 4. Replace loadHistory() and loadDashboard() and loadChart()
+code = code.replace(/\/\/ ==================== LOADING DATA ====================[\s\S]*?\/\/ ==================== AUTH FUNCTIONS ====================/, `// ==================== LOADING DATA ====================
 async function loadHistory() {
     const user = await getCurrentUser();
     if (!user) return;
@@ -397,6 +288,10 @@ async function loadChart() {
 }
 
 // ==================== AUTH FUNCTIONS ====================
+`);
+
+// 5. Replace AUTH FUNCTIONS
+code = code.replace(/\/\/ ==================== AUTH FUNCTIONS ====================[\s\S]*?function selectGoal\(goalId\) {[\s\S]*?window\.location\.href = "dashboard\.html";\n}/, `// ==================== AUTH FUNCTIONS ====================
 async function login() {
     let email = document.getElementById("email").value;
     let password = document.getElementById("password").value;
@@ -448,112 +343,10 @@ async function selectGoal(goalId) {
     await setGoal(goalId);
     window.location.href = "dashboard.html";
 }
+`);
 
-
-// ==================== SUGGESTIONS ====================
-function getSuggestion(data) {
-    let { study, insta, other, subject, score, goal } = data;
-    let suggestions = [];
-
-    if (insta + other > study) {
-        suggestions.push("ALERT: Distraction > Study. Cut phone usage!");
-    }
-
-    let minStudy = goal ? goal.dailyTarget : 6;
-    if (study < minStudy) {
-        suggestions.push("NOTICE: Study " + minStudy + "+ hours for your goal.");
-    }
-
-    if (score >= 85) {
-        suggestions.push("EXCELLENT: Outstanding performance!");
-    } else if (score >= 70) {
-        suggestions.push("GOOD: Keep pushing!");
-    } else {
-        suggestions.push("WARNING: Increase focus, reduce distractions.");
-    }
-
-    if (subject === "Math") {
-        suggestions.push("MATH: Practice 15+ problems daily.");
-    }
-    if (subject === "Physics") {
-        suggestions.push("PHYSICS: Numericals + concepts equally.");
-    }
-    if (subject === "Chemistry") {
-        suggestions.push("CHEMISTRY: Reactions & formulas mastery.");
-    }
-    if (subject === "Biology") {
-        suggestions.push("BIOLOGY: Diagrams + theory balance.");
-    }
-    if (subject === "English") {
-        suggestions.push("ENGLISH: Read daily, write essays.");
-    }
-    if (subject === "History") {
-        suggestions.push("HISTORY: Timeline + context important.");
-    }
-    if (subject === "Geography") {
-        suggestions.push("GEOGRAPHY: Maps + data analysis key.");
-    }
-
-    return suggestions;
-}
-
-function getAISuggestions(data) {
-    let { study, insta, other, subject, score, goal } = data;
-    let aiTips = [];
-    
-    if (study === 0) {
-        aiTips.push("START: Begin with 30-min Pomodoro session!");
-        aiTips.push("FOCUS: Use Pomodoro. 25min work, 5min break.");
-    } else if (study < 3) {
-        aiTips.push("INCREASE: Study longer today. Build momentum!");
-        aiTips.push("BREAK: Take 5min breaks every 50 mins.");
-    } else if (study < 6) {
-        aiTips.push("GOOD: Active recall + spaced repetition.");
-        aiTips.push("HYDRATE: Drink water every hour!");
-    } else {
-        aiTips.push("AMAZING: You're crushing it! Keep going!");
-        aiTips.push("LEVEL UP: Teach concepts to others.");
-    }
-
-    if (goal) {
-        let goalName = goal.name;
-        if (goalName.includes("ICSE")) {
-            aiTips.push("ICSE: Concept clarity crucial. Practice variations!");
-            aiTips.push("TIME: " + goal.recommendedTime + " per subject recommended.");
-        } else if (goalName.includes("CBSE")) {
-            if (goalName.includes("10")) {
-                aiTips.push("CBSE: Focus on NCERT. Board exam patterns.");
-            } else if (goalName.includes("11") || goalName.includes("12")) {
-                aiTips.push("BOARD: Revision + past papers essential.");
-                aiTips.push("TIME: " + goal.recommendedTime + " per subject.");
-            } else {
-                aiTips.push("CBSE: Strong fundamentals foundation.");
-            }
-        } else if (goalName.includes("JEE")) {
-            if (goalName.includes("Mains")) {
-                aiTips.push("JEE: Previous year papers daily practice!");
-            } else {
-                aiTips.push("JEE ADVANCED: Elite level. Problem solving!");
-            }
-            aiTips.push("TIME: " + goal.recommendedTime + " per subject.");
-        }
-    }
-
-    if (insta + other > 2) {
-        aiTips.push("DISTRACTION: App blockers during study hours!");
-    }
-
-    if (score >= 85) {
-        aiTips.push("MOMENTUM: Maintain this streak!");
-    } else if (score < 50) {
-        aiTips.push("RESET: Small daily progress wins!");
-    }
-
-    return aiTips.slice(0, 5);
-}
-
-// ==================== CHAT FUNCTION ====================
-async function sendChat() {
+// 6. Replace sendChat
+code = code.replace(/async function sendChat\(\) {[\s\S]*?addChatMessage\('AI Coach', \`Connection error: \$\{error\.message\}\`\);\n    }\n}/, `async function sendChat() {
     const input = document.getElementById('chat-input');
     const message = input.value.trim();
     if (!message) return;
@@ -593,49 +386,13 @@ async function sendChat() {
             const data = await response.json();
             addChatMessage('AI Coach', data.response);
         } else {
-            addChatMessage('AI Coach', `Error: API returned ${response.status}. Please try again.`);
+            addChatMessage('AI Coach', \`Error: API returned \${response.status}. Please try again.\`);
         }
     } catch (error) {
         console.error('Chat error:', error);
-        addChatMessage('AI Coach', `Connection error: ${error.message}`);
+        addChatMessage('AI Coach', \`Connection error: \${error.message}\`);
     }
-}
+}`);
 
-function addChatMessage(sender, message) {
-    const chatDiv = document.getElementById('chat-messages');
-    const messageDiv = document.createElement('div');
-    messageDiv.style.marginBottom = '10px';
-    messageDiv.style.padding = '8px';
-    messageDiv.style.borderRadius = '5px';
-    
-    if (sender === 'You') {
-        messageDiv.style.background = 'rgba(16, 185, 129, 0.2)';
-        messageDiv.style.textAlign = 'right';
-    } else {
-        messageDiv.style.background = 'rgba(59, 130, 246, 0.2)';
-        messageDiv.style.textAlign = 'left';
-    }
-    
-    messageDiv.innerHTML = `<strong>${sender}:</strong> ${message}`;
-    chatDiv.appendChild(messageDiv);
-    chatDiv.scrollTop = chatDiv.scrollHeight;
-}
-
-// Auto-load on page load
-window.addEventListener('DOMContentLoaded', function() {
-    let path = window.location.pathname;
-    if (path.includes('dashboard.html')) {
-        loadDashboard();
-        setTimeout(loadChart, 100);
-    } else if (path.includes('history.html')) {
-        loadHistory();
-        setTimeout(loadChart, 100);
-    }
-    
-    // Temporarily disable auth check
-    // let user = getCurrentUser();
-    // if (!user && !path.includes('index.html') && !path.includes('goals.html')) {
-    //     window.location.href = 'index.html';
-    // }
-});
-
+fs.writeFileSync('d:/study-tracker/script.js', code);
+console.log('script.js updated successfully!');
