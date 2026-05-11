@@ -204,7 +204,7 @@ async function calculate() {
                 study: study,
                 insta: insta,
                 other: other,
-                score: score,
+                score: finalScore,
                 subject: subject,
                 goal: goal ? goal.name : 'General',
                 logs: logsData || []
