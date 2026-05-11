@@ -298,6 +298,31 @@
             color: #06d6a0;
         }
 
+        .server-status {
+            background: rgba(234, 179, 8, 0.15);
+            border: 1px solid rgba(234, 179, 8, 0.4);
+            color: #eab308;
+            font-size: 12px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            text-align: center;
+            margin: 6px 20px;
+            display: none;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .server-status.ready {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: rgba(16, 185, 129, 0.4);
+            color: #10b981;
+            animation: none;
+        }
+
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
             .message-content {
@@ -349,6 +374,9 @@
                 <p>Ask me anything about studying, subjects, or exam preparation</p>
             </div>
         </div>
+
+        <!-- Server Status Banner -->
+        <div id="server-status" class="server-status">⏳ Server is waking up, please wait a moment...</div>
 
         <!-- Input Area -->
         <div class="input-area">
@@ -455,19 +483,34 @@
                     }
                 }
 
-                const response = await fetch("https://study-yxi5.onrender.com/chat", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        message: message,
-                        goal: goal ? goal.name : 'General academic improvement',
-                        logs: logsData
-                    })
-                });
+                const payload = {
+                    message: message,
+                    goal: goal ? goal.name : 'General academic improvement',
+                    logs: logsData
+                };
+
+                let response;
+                try {
+                    // First attempt
+                    response = await fetchWithTimeout("https://study-yxi5.onrender.com/chat", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload)
+                    }, 20000);
+                } catch (firstErr) {
+                    // Server likely sleeping — show wake-up message and retry
+                    console.warn('First attempt failed, retrying...', firstErr.message);
+                    showStatus('⏳ Server is starting up, retrying...');
+                    await new Promise(r => setTimeout(r, 5000));
+                    response = await fetchWithTimeout("https://study-yxi5.onrender.com/chat", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload)
+                    }, 50000);
+                }
 
                 typingDiv.remove();
+                hideStatus();
 
                 if (response.ok) {
                     const data = await response.json();
@@ -481,8 +524,9 @@
                 }
             } catch (error) {
                 typingDiv.remove();
+                hideStatus();
                 console.error('Chat error:', error);
-                addChatMessage('AI Coach', `❌ Connection error: ${error.message}`);
+                addChatMessage('AI Coach', `❌ Could not reach AI server. Please wait 30 seconds and try again — the server may be starting up.`);
             }
         }
 
@@ -541,8 +585,50 @@
             reader.readAsDataURL(file);
         }
 
+        // ===== HELPERS =====
+        function fetchWithTimeout(url, options, ms) {
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), ms);
+            return fetch(url, { ...options, signal: controller.signal })
+                .finally(() => clearTimeout(id));
+        }
+
+        function showStatus(msg) {
+            const s = document.getElementById('server-status');
+            s.textContent = msg;
+            s.style.display = 'block';
+            s.classList.remove('ready');
+        }
+
+        function hideStatus() {
+            const s = document.getElementById('server-status');
+            s.style.display = 'none';
+        }
+
+        async function pingServer() {
+            try {
+                showStatus('⏳ Connecting to AI server...');
+                await fetchWithTimeout('https://study-yxi5.onrender.com/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: 'ping', goal: '', logs: [] })
+                }, 60000);
+                const s = document.getElementById('server-status');
+                s.textContent = '✅ AI server is ready!';
+                s.classList.add('ready');
+                s.style.display = 'block';
+                setTimeout(hideStatus, 3000);
+            } catch (e) {
+                console.warn('Ping failed silently:', e.message);
+                hideStatus();
+            }
+        }
+
         // Load page
         window.addEventListener('DOMContentLoaded', function() {
+            // Wake up the Render backend immediately
+            pingServer();
+
             // Initialize with welcome message from AI
             setTimeout(() => {
                 addChatMessage('AI Coach', "👋 Hello! I'm your AI study assistant. I'm here to help you with exam preparation, study strategies, subject-specific questions, and more. Feel free to ask me anything about your studies!");
