@@ -117,23 +117,38 @@ const GOALS = {
 
 // ==================== USER STATE ====================
 async function getCurrentUser() {
-    const { data } = await supabaseClient.auth.getUser();
-    return data.user;
+    try {
+        if (!supabaseClient) return null;
+        const { data, error } = await supabaseClient.auth.getUser();
+        if (error) return null;
+        return data?.user || null;
+    } catch (e) {
+        console.warn('Auth check failed silently:', e.message);
+        return null;
+    }
 }
 
 async function getCurrentGoal() {
-    let user = await getCurrentUser();
-    if (user && user.user_metadata && user.user_metadata.goal) {
-        return GOALS[user.user_metadata.goal];
+    try {
+        let user = await getCurrentUser();
+        if (user && user.user_metadata && user.user_metadata.goal) {
+            return GOALS[user.user_metadata.goal];
+        }
+    } catch (e) {
+        console.warn('Goal fetch failed silently:', e.message);
     }
     return null;
 }
 
 async function setGoal(goalId) {
-    const { data, error } = await supabaseClient.auth.updateUser({
-        data: { goal: goalId }
-    });
-    if (error) console.error("Error setting goal:", error);
+    try {
+        const { data, error } = await supabaseClient.auth.updateUser({
+            data: { goal: goalId }
+        });
+        if (error) console.warn("Error setting goal:", error.message);
+    } catch (e) {
+        console.warn('setGoal failed silently:', e.message);
+    }
 }
 
 // ==================== DATA SAVING ====================
@@ -435,8 +450,12 @@ async function logout() {
 }
 
 async function checkAuth() {
-    const { data } = await supabaseClient.auth.getUser();
-    if (!data.user) {
+    try {
+        const user = await getCurrentUser();
+        if (!user) {
+            window.location.href = "index.html";
+        }
+    } catch (e) {
         window.location.href = "index.html";
     }
 }
